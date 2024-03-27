@@ -5,10 +5,11 @@ import matplotlib.pyplot as plt
 
 image = cv2.imread('./data/Lena.png')
 
-KSIZE = 11
+KSIZE = 93
 ALPHA = 2
 kernel = cv2.getGaussianKernel(KSIZE, 0)
 kernel = -ALPHA * kernel @ kernel.T
+kernel[KSIZE//2, KSIZE//2] += 1 + ALPHA
 print(kernel.shape, kernel.dtype, kernel.sum())
 
 filtered = cv2.filter2D(image, -1, kernel)
