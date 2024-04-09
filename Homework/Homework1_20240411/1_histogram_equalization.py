@@ -1,97 +1,57 @@
+# 1. 사용자로부터 R, G, B 입력 받기
+# 2. 입력 받은 채널에 대한 히스토그램 그리기
+# 3. 히스토그램에 대해서 평탄화 작업 진행
+# 4. 평탄화 이후 영상 출력
+# 5. 출력한 영상에 대해 HSV 컬러 스페이스로 변경
+# 6. V 채널에 대한 평탄화 진행
+# 7. 평탄화 이후 영상 출력
+
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 
-loaded_image = cv2.imread('./data/image_source.png')
-cv2.imshow('test', loaded_image)
+original_image = cv2.imread('./data/image_source.png')
+cv2.imshow('ORIGINAL IMAGE', original_image)
+
+# 1. 사용자로부터 R, G, B 입력 받기
+key = cv2.waitKey(0) & 0xFF
+
+
+def equalize_histogram(channel_index, channel_data):
+    # 3. 히스토그램에 대해서 평탄화 작업 진행
+    equalized_channel = cv2.equalizeHist(channel_data)
+    equalized_image = original_image.copy()
+    equalized_image[:, :, channel_index] = equalized_channel
+
+    # 4. 평탄화 이후 영상 출력
+    cv2.imshow('EQUALIZED IMAGE', equalized_image)
+
+    # 5. 출력한 영상에 대해 HSV 컬러 스페이스로 변경
+    hsv = cv2.cvtColor(equalized_image, cv2.COLOR_BGR2HSV)
+
+    # 6. V 채널에 대한 평탄화 진행
+    hsv[..., 2] = cv2.equalizeHist(hsv[..., 2])
+    final_image = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
+
+    # 7. 평탄화 이후 영상 출력
+    cv2.imshow('FINAL IMAGE', final_image)
+
+
+if key in [ord('r'), ord('g'), ord('b')]:
+    # OpenCV는 BGR 순서로 채널을 관리함
+    channel_index = {'b': 0, 'g': 1, 'r': 2}[chr(key)]
+    channel_data = original_image[:, :, channel_index]
+
+    hist, bins = np.histogram(channel_data, 256, [0, 256])
+
+    # 2. 입력받은 채널에 대한 히스토그램 그리기
+    plt.fill_between(range(256), hist, 0)
+    plt.title(f'Histogram of {chr(key).upper()} Channel')
+    plt.xlabel('pixel value')
+    plt.ylabel('frequency')
+    plt.show()
+
+    equalize_histogram(channel_index, channel_data)
+
 cv2.waitKey()
-B, G, R = cv2.split(loaded_image)
-
-
-
-
-# grey = cv2.imread('./data/Lena.png', 0)
-# cv2.imshow('original grey', grey)
-# cv2.waitKey()
-#
-# hist, bins = np.histogram(grey, 256, [0, 255])
-# plt.fill(hist)
-# plt.xlabel('pixel value')
-# plt.show()
-#
-# grey_eq = cv2.equalizeHist(grey)
-# hist, bins = np.histogram(grey_eq, 256, [0, 255])
-# plt.fill_between(range(256), hist, 0)
-# plt.xlabel('pixel value')
-# plt.show()
-#
-# cv2.imshow('equalized grey', grey_eq)
-# cv2.waitKey()
-#
-#
-#
-# def plot_histogram_and_equalize(channel, title):
-#     # 히스토그램 계산
-#     hist, bins = np.histogram(channel.flatten(), 256, [0, 256])
-#     # 원본 채널의 히스토그램 표시
-#     plt.figure(figsize=(10, 4))
-#     plt.subplot(1, 2, 1)
-#     plt.fill_between(range(256), hist, 0)
-#     plt.title(f'{title} Channel Histogram')
-#
-#     # 히스토그램 평탄화 수행
-#     equalized_channel = cv2.equalizeHist(channel)
-#
-#     # 평탄화된 채널의 히스토그램 계산 및 표시
-#     hist, bins = np.histogram(equalized_channel.flatten(), 256, [0, 256])
-#     plt.subplot(1, 2, 2)
-#     plt.fill_between(range(256), hist, 0)
-#     plt.title(f'Equalized {title} Channel Histogram')
-#     plt.show()
-#
-#     return equalized_channel
-#
-#
-# def process_image_and_plot(image_path, channel_choice):
-#     image = cv2.imread(image_path)
-#     if image is None:
-#         print("Image not found. Please check the path.")
-#         return
-#
-#     # BGR에서 RGB로 변환
-#     image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-#
-#     if channel_choice.upper() == 'R':
-#         channel_index = 0
-#     elif channel_choice.upper() == 'G':
-#         channel_index = 1
-#     elif channel_choice.upper() == 'B':
-#         channel_index = 2
-#     else:
-#         print("Invalid channel choice. Please select 'R', 'G', or 'B'.")
-#         return
-#
-#     # 선택된 채널 추출
-#     selected_channel = image_rgb[:, :, channel_index]
-#     # 히스토그램 및 평탄화 처리
-#     equalized_channel = plot_histogram_and_equalize(selected_channel, channel_choice)
-#
-#     # 평탄화된 채널로 이미지 업데이트
-#     equalized_image = image_rgb.copy()
-#     equalized_image[:, :, channel_index] = equalized_channel
-#
-#     # 원본 이미지 및 처리된 이미지 표시
-#     plt.figure(figsize=(10, 5))
-#     plt.subplot(1, 2, 1)
-#     plt.imshow(image_rgb)
-#     plt.title('Original Image')
-#
-#     plt.subplot(1, 2, 2)
-#     plt.imshow(equalized_image)
-#     plt.title(f'Image with Equalized {channel_choice} Channel')
-#     plt.show()
-#
-#
-# # 사용 예시
-# # 'R', 'G', 또는 'B' 중 하나를 선택하여 아래 함수를 호출하세요.
-# process_image_and_plot('./data/Lena.png', 'R')
+cv2.destroyAllWindows()
