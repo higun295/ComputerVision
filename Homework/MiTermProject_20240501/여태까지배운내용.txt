@@ -1,0 +1,24 @@
+Color image capture
+Color space conversion
+Gamma correction
+Histogram Equalization
+Image Filtering
+Sobel filter for image gradient
+Unsharp mask for image sharpening
+Discrete Fourier Transform
+Frequency-domain Image Filtering
+Image Thresholding
+Morphological Filter
+Edge Detection
+Hough Transform
+Connected Component Labeling
+Region-based growing
+Watershed
+Image Segmentation using K-means clustering
+GrabCut
+
+Corner Detection
+	- Harris Corner
+	- FAST
+	- Good Feature To Track
+SIFT (Scale Invariant Feature Transform)
