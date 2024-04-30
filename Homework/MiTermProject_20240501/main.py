@@ -12,9 +12,9 @@
 
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 
 image = cv2.imread('./Data/C_Key.jpg')
-
 new_width = 1200
 ratio = new_width / image.shape[1]
 new_height = int(image.shape[0] * ratio)
@@ -23,7 +23,7 @@ new_height = int(image.shape[0] * ratio)
 resized_image = cv2.resize(image, (new_width, new_height), interpolation=cv2.INTER_AREA)
 
 # 노이즈 제거
-blurred_image = cv2.GaussianBlur(resized_image, (15, 15), 2)
+blurred_image = cv2.GaussianBlur(resized_image, (0, 0), 1)
 # cv2.imshow("blurred_image", blurred_image)
 # cv2.waitKey(0)
 # cv2.destroyAllWindows()
@@ -34,19 +34,38 @@ gray_image = cv2.cvtColor(blurred_image, cv2.COLOR_BGR2GRAY)
 # cv2.waitKey(0)
 # cv2.destroyAllWindows()
 
+# ==================================================================
 # 이진화
-adaptive_thresh = cv2.adaptiveThreshold(gray_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 13, 5)
-cv2.imwrite('./Data/C_Key_adaptive_thresh.jpg', adaptive_thresh)
-cv2.imshow("adaptive_thresh", adaptive_thresh)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+# blockSizes = [11, 21, 31]
+# Cs = [5, 8, 11]
+#
+# fig, axes = plt.subplots(3, 3, figsize=(12, 12))
+#
+# for i, blockSize in enumerate(blockSizes):
+#     for j, C in enumerate(Cs):
+#         adaptive_thresh = cv2.adaptiveThreshold(gray_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV,
+#                                                 blockSize, C)
+#         ax = axes[i, j]
+#         ax.imshow(adaptive_thresh, cmap='gray')
+#         ax.set_title(f'BlockSize: {blockSize}, C: {C}')
+#         ax.axis('off')
+#
+# plt.show()
+#
+adaptive_thresh = cv2.adaptiveThreshold(gray_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
+# cv2.imwrite('./Data/C_Key_adaptive_thresh.jpg', adaptive_thresh)
+# cv2.imshow("adaptive_thresh", adaptive_thresh)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
 
+# ==================================================================
+#
+#
 # kernel = np.ones((3, 3), np.uint8)
 # # 열림 연산 적용
-# opening = cv2.morphologyEx(adaptive_thresh, cv2.MORPH_OPEN, kernel, iterations=2)
+# opening = cv2.morphologyEx(adaptive_thresh, cv2.MORPH_OPEN, kernel, iterations=1)
 # # 닫힘 연산 적용
-# closing = cv2.morphologyEx(adaptive_thresh, cv2.MORPH_CLOSE, kernel, iterations=2)
-
+# closing = cv2.morphologyEx(adaptive_thresh, cv2.MORPH_CLOSE, kernel, iterations=1)
 #
 # edges = cv2.Canny(opening, 110, 250)
 #
@@ -55,13 +74,37 @@ cv2.destroyAllWindows()
 # cv2.waitKey(0)
 # cv2.destroyAllWindows()
 
+
+# 윤곽 검출
+_, contours, _ = cv2.findContours(adaptive_thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+# 건반 윤곽 추출
+key_contours = []
+for contour in contours:
+    x, y, w, h = cv2.boundingRect(contour)
+    if w > 50 and h > 50:
+        key_contours.append(contour)
+
+# 건반 윤곽을 사용하여 마스크 생성
+mask = np.zeros_like(gray_image)
+cv2.drawContours(mask, key_contours, -1, 255, thickness=cv2.FILLED)
+
+# 마스크를 적용하여 건반 영역 추출
+key_region = cv2.bitwise_and(image, image, mask=mask)
+
+# 결과 표시
+cv2.imshow('Piano Keys', key_region)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+
 # _, contours, hierarchy = cv2.findContours(opening, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-# 윤곽선을 이미지에 그립니다. -1은 모든 윤곽을 그린다는 의미입니다.
-# 녹색으로 윤곽선을 그리고 두께는 2로 설정합니다.
+#
+# # 윤곽선을 이미지에 그립니다. -1은 모든 윤곽을 그린다는 의미입니다.
+# # 녹색으로 윤곽선을 그리고 두께는 2로 설정합니다.
 # contour_image = cv2.drawContours(resized_image.copy(), contours, -1, (0, 255, 0), 2)
-
-# 결과 이미지를 화면에 표시합니다
+#
+# # 결과 이미지를 화면에 표시합니다
 # cv2.imshow('Contours', contour_image)
 # cv2.waitKey(0)
 # cv2.destroyAllWindows()
