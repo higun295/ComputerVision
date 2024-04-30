@@ -19,9 +19,15 @@ new_width = 1200
 ratio = new_width / image.shape[1]
 new_height = int(image.shape[0] * ratio)
 
+# 이미지 크기 조정
 resized_image = cv2.resize(image, (new_width, new_height), interpolation=cv2.INTER_AREA)
+
+# 노이즈 제거
 blurred_image = cv2.GaussianBlur(resized_image, (15, 15), 1)
+
+# 색공간 변환
 gray_image = cv2.cvtColor(blurred_image, cv2.COLOR_BGR2GRAY)
+
 adaptive_thresh = cv2.adaptiveThreshold(gray_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 13, 1)
 
 
