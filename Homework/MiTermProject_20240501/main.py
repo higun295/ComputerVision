@@ -23,19 +23,29 @@ new_height = int(image.shape[0] * ratio)
 resized_image = cv2.resize(image, (new_width, new_height), interpolation=cv2.INTER_AREA)
 
 # 노이즈 제거
-blurred_image = cv2.GaussianBlur(resized_image, (15, 15), 1)
+blurred_image = cv2.GaussianBlur(resized_image, (15, 15), 2)
+# cv2.imshow("blurred_image", blurred_image)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
 
 # 색공간 변환
 gray_image = cv2.cvtColor(blurred_image, cv2.COLOR_BGR2GRAY)
+# cv2.imshow("gray_image", gray_image)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
 
-adaptive_thresh = cv2.adaptiveThreshold(gray_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 13, 1)
+# 이진화
+adaptive_thresh = cv2.adaptiveThreshold(gray_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 13, 5)
+cv2.imwrite('./Data/C_Key_adaptive_thresh.jpg', adaptive_thresh)
+cv2.imshow("adaptive_thresh", adaptive_thresh)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 
-
-kernel = np.ones((3, 3), np.uint8)
-# 열림 연산 적용
-opening = cv2.morphologyEx(adaptive_thresh, cv2.MORPH_OPEN, kernel, iterations=2)
-# 닫힘 연산 적용
-closing = cv2.morphologyEx(adaptive_thresh, cv2.MORPH_CLOSE, kernel, iterations=2)
+# kernel = np.ones((3, 3), np.uint8)
+# # 열림 연산 적용
+# opening = cv2.morphologyEx(adaptive_thresh, cv2.MORPH_OPEN, kernel, iterations=2)
+# # 닫힘 연산 적용
+# closing = cv2.morphologyEx(adaptive_thresh, cv2.MORPH_CLOSE, kernel, iterations=2)
 
 #
 # edges = cv2.Canny(opening, 110, 250)
@@ -45,13 +55,13 @@ closing = cv2.morphologyEx(adaptive_thresh, cv2.MORPH_CLOSE, kernel, iterations=
 # cv2.waitKey(0)
 # cv2.destroyAllWindows()
 
-_, contours, hierarchy = cv2.findContours(opening, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+# _, contours, hierarchy = cv2.findContours(opening, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
 # 윤곽선을 이미지에 그립니다. -1은 모든 윤곽을 그린다는 의미입니다.
 # 녹색으로 윤곽선을 그리고 두께는 2로 설정합니다.
-contour_image = cv2.drawContours(resized_image.copy(), contours, -1, (0, 255, 0), 2)
+# contour_image = cv2.drawContours(resized_image.copy(), contours, -1, (0, 255, 0), 2)
 
 # 결과 이미지를 화면에 표시합니다
-cv2.imshow('Contours', contour_image)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+# cv2.imshow('Contours', contour_image)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
