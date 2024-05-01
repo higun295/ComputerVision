@@ -40,9 +40,19 @@ sobelx = cv2.Sobel(opened, cv2.CV_64F, 1, 0, ksize=3)  # x 방향 엣지
 sobely = cv2.Sobel(opened, cv2.CV_64F, 0, 1, ksize=3)  # y 방향 엣지
 sobel = cv2.magnitude(sobelx, sobely)  # 엣지 강도 계산
 
+# 윤곽 검출
+_, contours, _ = cv2.findContours(sobel.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
+# 각 윤곽에 대해 경계 상자 그리기
+for contour in contours:
+    x, y, w, h = cv2.boundingRect(contour)
+    if w > 20 and h > 20:  # 소형 노이즈 제거
+        cv2.rectangle(resized_image, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-
+# 결과 표시
+cv2.imshow('Detected Piano Keys', resized_image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 
 # # 결과 표시
 # cv2.imshow('Opened', opened)

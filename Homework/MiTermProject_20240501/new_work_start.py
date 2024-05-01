@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-# 이미지 로드 및 그레이스케일 변환
+# 이미지 로드 및 사전 처리
 image = cv2.imread('./Data/C_Key_resized.jpg')
 new_width = 1200
 ratio = new_width / image.shape[1]
@@ -10,25 +10,27 @@ new_height = int(image.shape[0] * ratio)
 # 이미지 크기 조정
 resized_image = cv2.resize(image, (new_width, new_height), interpolation=cv2.INTER_AREA)
 
-gray = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
+gray_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
 
-# 이진화를 통해 건반과 손가락을 더 잘 구분할 수 있게 처리
-_, binary = cv2.threshold(gray, 100, 255, cv2.THRESH_BINARY_INV)
+# Bilateral 필터 적용
+filtered_image = cv2.bilateralFilter(gray_image, 9, 75, 75)
 
-# 윤곽 검출
-_, contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+# 이진화
+_, binary_image = cv2.threshold(filtered_image, 80, 255, cv2.THRESH_BINARY_INV)
 
-# 각 윤곽에 대해 반복
-for contour in contours:
-    # 윤곽의 경계 상자를 구합니다
-    x, y, w, h = cv2.boundingRect(contour)
+# 모폴로지 연산
+kernel = np.ones((3, 3), np.uint8)
+opened_image = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel)
 
-    # 간단한 건반 크기 필터 (건반 크기 추정을 통해 설정)
-    if 20 < w < 600 and 100 < h < 600:
-        # 경계 상자를 이미지에 그립니다
-        cv2.rectangle(resized_image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+# Sobel 엣지 검출
+sobelx = cv2.Sobel(opened_image, cv2.CV_64F, 1, 0, ksize=5)
+sobely = cv2.Sobel(opened_image, cv2.CV_64F, 0, 1, ksize=5)
+sobel = cv2.magnitude(sobelx, sobely)
 
-# 결과 이미지 표시
-cv2.imshow('Detected Keys', resized_image)
+# 결과 표시
+cv2.imshow('Filtered Image', filtered_image)
+cv2.imshow('Binary Image', binary_image)
+cv2.imshow('Opened Image', opened_image)
+cv2.imshow('Sobel Edge', sobel)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
