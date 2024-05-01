@@ -12,23 +12,57 @@ resized_image = cv2.resize(image, (new_width, new_height), interpolation=cv2.INT
 
 # 노이즈 제거
 blurred_image = cv2.GaussianBlur(resized_image, (0, 0), 1)
-cv2.imshow("blurred_image", blurred_image)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+# cv2.imshow("blurred_image", blurred_image)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
 
 # 그레이스케일로 변환
 gray_image = cv2.cvtColor(blurred_image, cv2.COLOR_BGR2GRAY)
-cv2.imshow('gray_image', gray_image)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+# cv2.imshow('gray_image', gray_image)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
+
+# Bilateral 필터 적용
+filtered_image = cv2.bilateralFilter(gray_image, 9, 75, 75)
 
 # 이진화
 adaptive_thresh = cv2.adaptiveThreshold(gray_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
-cv2.imshow('Binary Image', adaptive_thresh)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+# cv2.imshow('Binary Image', adaptive_thresh)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
 
-cv2.imwrite('./Data/find_keyboard_adaptive_thresh.jpg', adaptive_thresh)
+# 모폴로지 연산 - 세밀한 조정
+kernel = np.ones((2, 2), np.uint8)  # 작은 커널 사용
+opened = cv2.morphologyEx(adaptive_thresh, cv2.MORPH_OPEN, kernel, iterations=1)  # 반복 횟수 감소
+
+# Sobel 엣지 검출
+sobelx = cv2.Sobel(opened, cv2.CV_64F, 1, 0, ksize=3)  # x 방향 엣지
+sobely = cv2.Sobel(opened, cv2.CV_64F, 0, 1, ksize=3)  # y 방향 엣지
+sobel = cv2.magnitude(sobelx, sobely)  # 엣지 강도 계산
+
+
+
+
+
+# # 결과 표시
+# cv2.imshow('Opened', opened)
+# cv2.imshow('Sobel Edge', sobel)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
+
+
+# # 모폴로지 연산 - Opening과 Closing 적용
+# kernel = np.ones((2, 2), np.uint8)
+# opened = cv2.morphologyEx(adaptive_thresh, cv2.MORPH_OPEN, kernel)
+# closed = cv2.morphologyEx(opened, cv2.MORPH_CLOSE, kernel)
+#
+# # 엣지 검출
+# edges = cv2.Canny(closed, 50, 150)
+# cv2.imshow('Opened', opened)
+# cv2.imshow('Closed', closed)
+# cv2.imshow('Edges', edges)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
 
 # kernel = np.ones((3, 3), np.uint8)
 # # 열림 연산 적용
