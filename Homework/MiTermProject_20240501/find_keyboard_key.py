@@ -12,24 +12,15 @@ resized_image = cv2.resize(image, (new_width, new_height), interpolation=cv2.INT
 
 # 노이즈 제거
 blurred_image = cv2.GaussianBlur(resized_image, (0, 0), 1)
-# cv2.imshow("blurred_image", blurred_image)
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
 
 # 그레이스케일로 변환
 gray_image = cv2.cvtColor(blurred_image, cv2.COLOR_BGR2GRAY)
-# cv2.imshow('gray_image', gray_image)
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
 
 # Bilateral 필터 적용
 filtered_image = cv2.bilateralFilter(gray_image, 9, 75, 75)
 
 # 이진화
 adaptive_thresh = cv2.adaptiveThreshold(gray_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
-# cv2.imshow('Binary Image', adaptive_thresh)
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
 
 # 모폴로지 연산 - 세밀한 조정
 kernel = np.ones((2, 2), np.uint8)  # 작은 커널 사용
@@ -46,7 +37,7 @@ _, contours, _ = cv2.findContours(sobel.astype(np.uint8), cv2.RETR_EXTERNAL, cv2
 # 각 윤곽에 대해 경계 상자 그리기
 for contour in contours:
     x, y, w, h = cv2.boundingRect(contour)
-    if w > 20 and h > 20:  # 소형 노이즈 제거
+    if h / w > 2:
         cv2.rectangle(resized_image, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
 # 결과 표시
