@@ -9,7 +9,7 @@ def mouse_callback(event, x, y, flags, param):
     global selected_pts, show_img
     if event == cv2.EVENT_LBUTTONUP:
         selected_pts.append([x, y])
-        cv2.circle(show_img, (x, y), 10, (0, 255, 0), 1)
+        cv2.circle(show_img, (x, y), 10, (0, 255, 0), 3)
 
 def select_points(image, points_num):
     global selected_pts
