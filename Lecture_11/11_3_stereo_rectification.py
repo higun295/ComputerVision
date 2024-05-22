@@ -9,7 +9,7 @@ np_load_old = np.load
 np.load = lambda *a, **k : np_load_old(*a, allow_pickle=True, **k)
 
 data = np.load('./data/stereo/case1/stereo.npy').item()
-Kl, Dl, Kr, Dr, R, T, img_size = data['Kl'], data['Dl'], data['Kr'], data['Dr'], \ data['R'], data['T'], data['img_size']
+Kl, Dl, Kr, Dr, R, T, img_size = data['Kl'], data['Dl'], data['Kr'], data['Dr'], data['R'], data['T'], data['img_size']
 
 left_img = cv2.imread('./data/stereo/case1/left14.png')
 right_img = cv2.imread('./data/stereo/case1/right14.png')
