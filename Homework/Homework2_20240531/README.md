@@ -1,7 +1,4 @@
-<h1>Homework#1</h1>
-
----
-
+<h1>Homework#2</h1>
 <h2>1. Feature Detection</h2>
 Stitching.zip에서 4장의 영상(boat1, budapest1, newspaper1,sl)을 선택한 후에 Canny Edge와 Harris Corner를 검출해서 결과를 출력하는 코드를 작성하시오.
 
