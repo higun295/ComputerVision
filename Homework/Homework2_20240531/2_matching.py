@@ -55,8 +55,8 @@ def find_homography_and_warp(img1, img2, keypoints1, keypoints2, matches):
 
 
 # 이미지 경로
-image1_path = './data/boat1.jpg'
-image2_path = './data/boat2.jpg'
+image1_path = './data/budapest1.jpg'
+image2_path = './data/budapest2.jpg'
 
 # 이미지 로드
 img1 = cv2.imread(image1_path)
