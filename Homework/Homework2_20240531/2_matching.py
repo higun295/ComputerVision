@@ -3,69 +3,57 @@
 # 이를 통해 한 장의 영상을 다른 한 장의 영상으로 warping하는 코드 작성
 
 import cv2
-import matplotlib.pyplot as plt
+import numpy as np
 
-# 이미지 경로
-img1_path = './data/boat1.jpg'
-img2_path = './data/boat2.jpg'
+img1 = cv2.imread('./data/boat1.jpg', cv2.IMREAD_GRAYSCALE)
+img2 = cv2.imread('./data/boat2.jpg', cv2.IMREAD_GRAYSCALE)
 
-# 이미지 읽기
-img1 = cv2.imread(img1_path, cv2.IMREAD_GRAYSCALE)
-img2 = cv2.imread(img2_path, cv2.IMREAD_GRAYSCALE)
+def match_features(detector, img1, img2):
+    keypoints1, descriptors1 = detector.detectAndCompute(img1, None)
+    keypoints2, descriptors2 = detector.detectAndCompute(img2, None)
 
-# 이미지가 제대로 읽혔는지 확인
-if img1 is None or img2 is None:
-    print("이미지를 읽어오는데 문제가 발생했습니다.")
-    exit()
+    # BFMatcher 생성
+    bf = cv2.BFMatcher(cv2.NORM_L2, crossCheck=True)
+    matches = bf.match(descriptors1, descriptors2)
+    matches = sorted(matches, key=lambda x: x.distance)
 
-# SIFT 특징 추출
+    # 매칭된 특징점 좌표 추출
+    src_pts = np.float32([keypoints1[m.queryIdx].pt for m in matches]).reshape(-1, 2)
+    dst_pts = np.float32([keypoints2[m.trainIdx].pt for m in matches]).reshape(-1, 2)
+
+    return src_pts, dst_pts, matches
+
+
+# SIFT
 sift = cv2.SIFT_create()
-keypoints1_sift, descriptors1_sift = sift.detectAndCompute(img1, None)
-keypoints2_sift, descriptors2_sift = sift.detectAndCompute(img2, None)
+src_pts_sift, dst_pts_sift, matches_sift = match_features(sift, img1, img2)
 
-# SURF 특징 추출 (hessianThreshold 값을 조정하여 검출할 특징점의 개수를 조절할 수 있음)
+# SURF
 surf = cv2.xfeatures2d.SURF_create(400)
-keypoints1_surf, descriptors1_surf = surf.detectAndCompute(img1, None)
-keypoints2_surf, descriptors2_surf = surf.detectAndCompute(img2, None)
+src_pts_surf, dst_pts_surf, matches_surf = match_features(surf, img1, img2)
 
-# ORB 특징 추출
+# ORB
 orb = cv2.ORB_create()
-keypoints1_orb, descriptors1_orb = orb.detectAndCompute(img1, None)
-keypoints2_orb, descriptors2_orb = orb.detectAndCompute(img2, None)
+src_pts_orb, dst_pts_orb, matches_orb = match_features(orb, img1, img2)
 
-# 특징점을 이미지에 그리기
-img1_sift = cv2.drawKeypoints(img1, keypoints1_sift, None, (255, 0, 0), 4)
-img2_sift = cv2.drawKeypoints(img2, keypoints2_sift, None, (255, 0, 0), 4)
-img1_surf = cv2.drawKeypoints(img1, keypoints1_surf, None, (255, 0, 0), 4)
-img2_surf = cv2.drawKeypoints(img2, keypoints2_surf, None, (255, 0, 0), 4)
-img1_orb = cv2.drawKeypoints(img1, keypoints1_orb, None, (255, 0, 0), 4)
-img2_orb = cv2.drawKeypoints(img2, keypoints2_orb, None, (255, 0, 0), 4)
 
-# 결과 이미지 출력
-plt.figure(figsize=(20, 10))
+# RANSAC을 통한 homography 계산
+def calculate_homography(src_pts, dst_pts):
+    H, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
+    return H
 
-plt.subplot(2, 3, 1)
-plt.imshow(img1_sift)
-plt.title('SIFT Keypoints in Image 1')
 
-plt.subplot(2, 3, 2)
-plt.imshow(img1_surf)
-plt.title('SURF Keypoints in Image 1')
+H_sift = calculate_homography(src_pts_sift, dst_pts_sift)
+H_surf = calculate_homography(src_pts_surf, dst_pts_surf)
+H_orb = calculate_homography(src_pts_orb, dst_pts_orb)
 
-plt.subplot(2, 3, 3)
-plt.imshow(img1_orb)
-plt.title('ORB Keypoints in Image 1')
 
-plt.subplot(2, 3, 4)
-plt.imshow(img2_sift)
-plt.title('SIFT Keypoints in Image 2')
+# 이미지 warping
+def warp_image(img, H, shape):
+    return cv2.warpPerspective(img, H, shape)
 
-plt.subplot(2, 3, 5)
-plt.imshow(img2_surf)
-plt.title('SURF Keypoints in Image 2')
 
-plt.subplot(2, 3, 6)
-plt.imshow(img2_orb)
-plt.title('ORB Keypoints in Image 2')
-
-plt.show()
+height, width = img2.shape
+warped_img_sift = warp_image(img1, H_sift, (width, height))
+warped_img_surf = warp_image(img1, H_surf, (width, height))
+warped_img_orb = warp_image(img1, H_orb, (width, height))
