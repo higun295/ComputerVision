@@ -1,3 +1,53 @@
+Color image capture
+Color space conversion
+Gamma correction
+Histogram Equalization
+Image Filtering
+Sobel filter for image gradient
+Unsharp mask for image sharpening
+Discrete Fourier Transform
+Frequency-domain Image Filtering
+Image Thresholding
+Morphological Filter
+Edge Detection
+Hough Transform
+Connected Component Labeling
+Region-based growing
+Watershed
+Image Segmentation using K-means clustering
+GrabCut
+
+Corner Detection
+	- Harris Corner
+	- FAST
+	- Good Feature To Track
+SIFT (Scale Invariant Feature Transform)
+
+======================================================================
+
+Invariant feature matching
+RANSAC
+Bag of Visual Word
+Optical flow
+Panorama stitching
+Pinhole camera model vs Lens camera model
+Camera Projection Matrix
+Geometric Camera Calibration
+Radial Distortion
+Triangulation
+Epipolar Geometry
+Essential/Fundamental Matrix
+Stereo Rectification
+HoG(Histogram of Oriented Gradient)
+K-Nearest Neighbor
+SVM(Support Vector Machine)
+Haar-like feature
+Adaboost
+ 
+ 
+ 
+ 
+ 
 1. 데이터 수집
 촬영 장비: 카메라를 사용하여 피아노 건반을 촬영합니다. 카메라는 피아노 건반을 전체적으로 볼 수 있는 위치에 고정합니다.
 데이터: 여러 각도에서 다양한 조명 조건에서의 피아노 건반 이미지를 수집합니다.
