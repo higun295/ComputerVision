@@ -1,7 +1,8 @@
 import cv2
 import numpy as np
 
-img = cv2.imread('./data/scenetext01.jpg', cv2.IMREAD_COLOR)
+img = cv2.imread('./data/piano_1.jpg', cv2.IMREAD_COLOR)
+img = cv2.resize(img, (int(img.shape[1] * 0.2), int(img.shape[0] * 0.2)))
 corners = cv2.cornerHarris(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), 2, 3, 0.04)
 
 corners = cv2.dilate(corners, None)
