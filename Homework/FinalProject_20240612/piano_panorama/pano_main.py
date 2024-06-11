@@ -3,8 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # 이미지 경로
-img1_path = './cbnu_images/1.jpg'
-img2_path = './cbnu_images/3.jpg'
+img1_path = './cbnu_images/1_1.jpg'
+img2_path = './cbnu_images/1_3.jpg'
 
 # 이미지 불러오기
 img1 = cv2.imread(img1_path)
