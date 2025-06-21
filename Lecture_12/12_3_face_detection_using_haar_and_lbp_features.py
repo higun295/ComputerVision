@@ -32,3 +32,6 @@ lbp_face_cascade = cv2.CascadeClassifier()
 lbp_face_cascade.load('./data/lbpcascade_frontalface_default.xml')
 
 detect_faces(0, lbp_face_cascade, 'LBP cascade face detector')
+
+
+np.vstack((lbp_face_cascade))
